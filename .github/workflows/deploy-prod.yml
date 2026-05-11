@@ -1,0 +1,108 @@
+name: Build and Deploy to Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+env:
+  TAG:
+  IMAGE:
+  DEPLOYMENT:
+  ENV: |
+    NODE_ENV=production
+    CONFIG=qa
+    MONGODB_CONN_URL=${{ secrets.MONGODB_CONN_URL }}
+    OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+    GOOGLE_APPLICATION_CREDENTIALS=/app/auth/adc.json
+    COMMIT=${{ github.sha }}
+
+concurrency:
+  group: deploy-prod-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy to Cloud Run
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.vars.outputs.TAG }}
+      url: ${{ steps.deploy.outputs.url }}
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Update Variables
+        id: vars
+        run: |
+          TAG=${{ github.head_ref || github.ref_name }}
+          TAG=${TAG//[^[:alnum:]]/-}
+          TAG=$(echo $TAG | sed "s/^-*//")
+          echo "TAG=${TAG}" | tee -a $GITHUB_ENV $GITHUB_OUTPUT > /dev/null
+          echo "IMAGE=us-east4-docker.pkg.dev/${{ vars.GCP_PROJECT_NPD }}/deployments/${{ vars.SERVICE }}" >> $GITHUB_ENV
+
+      - name: Update Variables 2
+        run: |
+          echo "DEPLOYMENT=${{ env.TAG == 'main' && vars.SERVICE || format('{0}-{1}', vars.SERVICE, env.TAG) }}" >> $GITHUB_ENV
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.ref_name }}
+          submodules: true
+          token: ${{ secrets.CHASM_MASTER_GITHUB_TOKEN }}
+
+      - name: Google Auth
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          token_format: access_token
+          # Use Chasm Master GitHub Actions scoped account for deploying server.
+          credentials_json: "${{ secrets.GCP_CREDENTIALS }}"
+
+      - name: Docker Auth
+        id: docker-auth
+        uses: docker/login-action@v1
+        with:
+          username: oauth2accesstoken
+          password: "${{ steps.auth.outputs.access_token }}"
+          registry: us-east4-docker.pkg.dev
+
+      # TODO: If Chasm Master servers need to leverage GCP services, use a
+      # server-scoped service account for this. Do not use the GitHub Actions
+      # deployment service account.
+      #- name: Create Auth Files
+      #run: |
+      #mkdir auth
+      #echo '${{ secrets.PRODUCT_GCP_CREDENTIALS }}' > auth/adc.json
+      #echo '${{ secrets.GCE_SSH_KEY }}' > auth/google_compute_engine.key
+
+      - name: Build and Push Container
+        run: |
+          docker build \
+            -f Dockerfile \
+            -t "${{ env.IMAGE }}:${{ env.TAG }}" \
+            -t "${{ env.IMAGE }}:${{ env.TAG }}-${{ github.SHA }}" \
+            ./
+          docker push -a "${{ env.IMAGE }}"
+
+      - name: Deploy to Cloud Run
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v1
+        with:
+          service: ${{ env.DEPLOYMENT }}
+          region: us-east4
+          image: ${{ env.IMAGE }}:${{ env.TAG }}
+          env_vars: |
+            ${{ env.ENV }}
+            BRANCH=${{ env.TAG }}
+          # Use Chasm Master GitHub Actions scoped account for deploying server.
+          flags: >
+            --service-account chasm-master-github-actions@chasm-master-npd.iam.gserviceaccount.com
+            --allow-unauthenticated
+            --cpu-boost
+            ${{ (github.ref_name == 'main') && '--min-instances 1' || '' }}
+
+      # TODO: Consider adding GitHub deployments to track server deployments.

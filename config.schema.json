@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Config",
+  "description": "Application configuration",
+  "type": "object",
+  "required": ["appdb", "requiredEnvVars"],
+
+  "properties": {
+    "appdb": {
+      "description": "The name of the mongo database to store app data",
+      "type": "string",
+      "default": "app",
+      "minLength": 1
+    },
+
+    "requiredEnvVars": {
+      "description": "A list of environment variables that must be set. The server will not start if any of these are undefined.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

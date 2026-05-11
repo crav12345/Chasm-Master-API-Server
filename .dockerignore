@@ -1,0 +1,26 @@
+# Docker
+docker-compose.yml
+.dockerignore
+
+# git
+**.git
+.husky
+.github
+.gitignore
+.gitmodules
+.gitattributes
+
+# Tests
+src/__tests__
+stresstest
+
+# Linting
+.prettierignore
+
+# Misc.
+node_modules
+build
+logs
+.vscode
+config.schema.json
+**README.md

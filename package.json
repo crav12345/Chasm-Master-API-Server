@@ -1,0 +1,37 @@
+{
+  "name": "chasm-master-api",
+  "version": "1.0.0",
+  "description": "The backend API for Chasm Master",
+  "main": "build/index.js",
+  "scripts": {
+    "dev": "nodemon --watch ./src -e ts --exec ts-node --project ./tsconfig.json ./src",
+    "build": "npm run clean && tsc --project ./tsconfig.json",
+    "clean": "rm -rf ./build",
+    "start": "node ./build"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "ejs": "^3.1.10",
+    "express": "^4.18.2",
+    "express-session": "^1.18.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.3.0",
+    "openai": "^4.87.3",
+    "uninstall": "^0.0.0"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/cookie-parser": "^1.4.7",
+    "@types/cors": "^2.8.17",
+    "@types/ejs": "^3.1.5",
+    "@types/express": "^4.17.21",
+    "@types/express-session": "^1.18.0",
+    "@types/jsonwebtoken": "^9.0.5",
+    "nodemon": "^3.0.3",
+    "prettier": "^3.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}

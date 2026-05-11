@@ -1,0 +1,4 @@
+{
+  "appdb": "chasm_master",
+  "requiredEnvVariables": ["OPENAI_API_KEY", "MONGODB_CONN_URL"]
+}

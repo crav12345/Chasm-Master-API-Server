@@ -1,0 +1,48 @@
+volumes:
+  mongodb:
+
+networks:
+  proxy:
+    name: proxy
+  mongodb:
+
+services:
+  chasm-master-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: development
+    command: dev
+    networks:
+      - proxy
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/build
+    environment:
+      PORT: 8000
+      CONFIG: local
+      # Replace with actual MongoDB connection string.
+      MONGODB_CONN_URL: MONGODB_CONN_URL
+      OPENAI_API_KEY: OPENAI_API_KEY
+    deploy:
+      resources:
+        limits:
+          memory: 512mb
+    image: chasm-master-api
+    container_name: chasm-master-api
+    ports:
+      - 8000:8000
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo
+    volumes:
+      - mongodb:/data/db
+    networks:
+      - mongodb
+    container_name: chasm-master-mongodb
+    ports:
+      - 27017:27017
