@@ -12,4 +12,4 @@ To run the server locally, do the following:
 
 ## GitHub Actions
 
-The server image (on Google Cloud Artifact Registry) is automatically updated and redeployed when you merge a PR onto `main`. The image is also updated and a branch deployment is deployed when you open a PR with `main` as its target.
+The server image (on Google Cloud Artifact Registry) is automatically updated and redeployed when you merge a PR onto `main`.
