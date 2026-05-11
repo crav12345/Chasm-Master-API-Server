@@ -1,6 +1,6 @@
 # Chasm-Master-API-Server
 
-A RESTful API server for Chasm Master. Built with Node.js and Typescript packages.
+The backend server for _Chasm Master_. Built with Node.js and Typescript, this server mediates MongoDB database and OpenAI API access via a RESTful API.
 
 ## Running the Server
 
