@@ -13,3 +13,6 @@ To run the server locally, do the following:
 ## GitHub Actions
 
 The server image (on Google Cloud Artifact Registry) is automatically updated and redeployed when you merge a PR onto `main`.
+
+## TODO
+- Fix caching issues (looks like GET riddle requests are caching and only giving the same few riddles; answers may be caching too and causing problems)
