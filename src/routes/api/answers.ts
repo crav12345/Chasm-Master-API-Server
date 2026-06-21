@@ -56,6 +56,7 @@ router.post(
     });
 
     const aiResponse = completion.choices[0]?.message?.content ?? "";
+    console.log(`\n${playerAnswer}\n${actualAnswer}\n${aiResponse}`);
     const isCorrect = parseYesNo(aiResponse);
 
     response.send({ Correct: isCorrect });
