@@ -7,7 +7,17 @@ import OpenAI from "openai";
 const router = express.Router();
 
 const client = new OpenAI();
-const systemPrompt = "You are a wise old man that gives riddles.";
+const systemPrompt =
+  "You are a precise riddle judge. Answer only 'Yes' or 'No' and nothing else.";
+
+const parseYesNo = (text: string): boolean => {
+  const normalized = text.trim().toLowerCase();
+  if (/^yes\b/.test(normalized)) return true;
+  if (/^no\b/.test(normalized)) return false;
+  if (normalized.includes(" yes")) return true;
+  if (normalized.includes(" no")) return false;
+  return false;
+};
 
 /** Uses GPT to validate an answer to a riddle. */
 router.post(
@@ -28,27 +38,27 @@ router.post(
     }
 
     const actualAnswer = riddleEntry.Answer;
-    const userPrompt = `I asked the user a riddle. The correct answer is ${actualAnswer}. The player answered: ${playerAnswer}. Is their answer correct? Reply with only 'Yes' or 'No'.`;
+    const userPrompt = `I asked the user a riddle. The correct answer is ${actualAnswer}. The player answered: ${playerAnswer}. Is their answer correct? Answer only Yes or No.`;
     const completion = await client.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {
-          role: "user",
-          content: userPrompt,
-        },
-        {
           role: "system",
           content: systemPrompt,
         },
+        {
+          role: "user",
+          content: userPrompt,
+        },
       ],
-      max_tokens: 5,
+      max_tokens: 3,
+      temperature: 0,
     });
 
-    const aiResponse = completion.choices[0]?.message?.content
-      ?.trim()
-      .toLowerCase();
+    const aiResponse = completion.choices[0]?.message?.content ?? "";
+    const isCorrect = parseYesNo(aiResponse);
 
-    response.send({ Correct: aiResponse?.includes("yes") });
+    response.send({ Correct: isCorrect });
   },
 );
 
