@@ -8,7 +8,7 @@ const router = express.Router();
 
 const client = new OpenAI();
 const systemPrompt =
-  "You are a precise riddle judge. Answer only 'Yes' or 'No' and nothing else.";
+  "You are a riddle judge. If the player's answer has the same meaning as the correct answer, return only 'Yes'. If it does not, return only 'No'. Do not require exact wording.";
 
 const parseYesNo = (text: string): boolean => {
   const normalized = text.trim().toLowerCase();
