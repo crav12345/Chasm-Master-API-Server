@@ -1,6 +1,6 @@
 # Chasm-Master-API-Server
 
-A RESTful API server for Chasm Master. Built with Node.js and Typescript packages.
+The backend server for _Chasm Master_. Built with Node.js and Typescript, this server mediates MongoDB database and OpenAI API access via a RESTful API.
 
 ## Running the Server
 
@@ -12,4 +12,7 @@ To run the server locally, do the following:
 
 ## GitHub Actions
 
-The server image (on Google Cloud Artifact Registry) is automatically updated and redeployed when you merge a PR onto `main`. The image is also updated and a branch deployment is deployed when you open a PR with `main` as its target.
+The server image (on Google Cloud Artifact Registry) is automatically updated and redeployed when you merge a PR onto `main`.
+
+## TODO
+- Fix caching issues (looks like GET riddle requests are caching and only giving the same few riddles; answers may be caching too and causing problems)
