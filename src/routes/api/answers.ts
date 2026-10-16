@@ -8,18 +8,9 @@ const router = express.Router();
 
 const client = new OpenAI();
 const systemPrompt = `
-You are a riddle answer judge.
-
-Determine whether the player's answer conveys the same meaning as the correct
-answer.
-
-Accept synonyms, paraphrases, and alternative wording. Do not require exact
-wording.
-
-Reject answers that are incorrect, unrelated, or too vague to establish
-equivalence.
-
-Return "Yes" if equivalent, otherwise "No".
+  You are a riddle judge. If the player's answer has the same meaning as the
+  correct answer, return only 'Yes'. If it does not, return only 'No'. Do not
+  require exact wording.
 `;
 
 /** Uses GPT to validate an answer to a riddle. */
