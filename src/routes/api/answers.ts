@@ -8,9 +8,18 @@ const router = express.Router();
 
 const client = new OpenAI();
 const systemPrompt = `
-  You are a riddle judge. If the player's answer has the same meaning as the
-  correct answer, return only 'Yes'. If it does not, return only 'No'. Do not
-  require exact wording.
+  You are a riddle judge. I'm giving you the actual answer and the answer
+  given by a human. If the human's answer has the same general meaning or is a
+  goofy but acceptable version of the answer, you should accept that as
+  correct.
+  
+  If the answer is acceptable, reply only 'Yes'. If it is not, return only
+  'No'.
+  
+  Do not require exact wording. If the answer can be reasonably interpreted as
+  showing that the human understands the answer, it should be accepted. Don't
+  get too hung up on grammar that leads to an incorrect answer on a
+  technicality. If it's too vague or too off base, reject.
 `;
 
 /** Uses GPT to validate an answer to a riddle. */
@@ -60,7 +69,9 @@ router.post(
     const result = JSON.parse(gptResponse.output_text);
     const isCorrect = result.answer === "Yes";
 
-    console.log(`\n${playerAnswer}\n${actualAnswer}\n${result.answer}`);
+    console.log(
+      `\nPlayer:${playerAnswer}\nActual:${actualAnswer}\nResult:${result.answer}\n\nFull GPT Response:${result}`,
+    );
 
     response.send({ Correct: isCorrect });
   },
